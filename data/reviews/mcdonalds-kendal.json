@@ -5,13 +5,13 @@
   "visit": {
     "drink": "Americano",
     "priceGbp": null,
-    "when": null,
-    "seat": null,
+    "when": "2pm",
+    "seat": "in",
     "milk": "No (black)"
   },
   "coffee": {
-    "score": null,
-    "notes": "",
+    "score": 50,
+    "notes": "It's not horrible but it's just... coffee. Not exciting. At least it's cheap.",
     "aroma": {
       "quantity": -100,
       "quality": -8,
@@ -39,18 +39,18 @@
     }
   },
   "space": {
-    "score": null,
-    "notes": ""
+    "score": 60,
+    "notes": "Loads of space, and yet the furniture makes it feel cramped"
   },
   "service": {
-    "score": null,
+    "score": 90,
     "notes": ""
   },
   "value": {
-    "score": null,
-    "notes": ""
+    "score": 100,
+    "notes": "It's cheap coffee so I don't mind that"
   },
   "flavour": "Bog standard. It's coffee. Bit of chocolate.",
-  "overall": 50,
-  "notes": "It's not horrible but it's just... coffee. Not exciting. At least it's cheap."
+  "overall": 70,
+  "notes": "The McDonald's way is \"cheap but consistent\". That doesn't change with this coffee. Taken in context, this is a perfectly acceptable coffee that may well hit the spot if you're after something affordable yet decent."
 }
