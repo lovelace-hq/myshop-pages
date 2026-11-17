@@ -27,7 +27,7 @@ button,.button,input,select,textarea{font:inherit;color:inherit}
 .counter{background:var(--ink);color:var(--al);padding:clamp(1.2rem,2.4vw,2.2rem);display:flex;flex-direction:column;gap:1.6rem;position:sticky;top:0;height:100vh;overflow:hidden}
 .mark{display:block;text-decoration:none;font-family:var(--disp);line-height:.8;letter-spacing:-.01em;text-transform:lowercase;color:var(--al2);font-size:clamp(5.4rem,15.5vw,15rem);margin:.4rem 0 0 -.04em}
 .mark .my{font-weight:300;color:var(--sig-on-ink)}
-.mark .shop{font-weight:800;display:block;margin-top:.02em}
+.mark .shop{font-weight:800;display:block;margin-top:.14em}
 .tag{font:500 .8rem/1.5 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--al3);max-width:30ch;margin:0}
 .nav{display:flex;flex-wrap:wrap;gap:.2rem 1.2rem;margin:0;padding:0;list-style:none}
 .nav a{color:var(--al);min-height:44px;display:inline-flex;align-items:center;font:500 .82rem var(--mono);letter-spacing:.14em;text-transform:uppercase;text-decoration:none;border-bottom:2px solid transparent}
@@ -116,7 +116,7 @@ footer .fine{font-size:.82rem}
 .writer fieldset{border:1px dashed var(--ink2);padding:.8rem 1rem 1rem;display:grid;gap:.9rem;margin:0}
 .writer legend{font:600 .76rem var(--mono);letter-spacing:.14em;text-transform:uppercase;padding:0 .4rem}
 .writer .two{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
-.slid{display:grid;grid-template-columns:5.5rem 1fr auto;gap:.5rem;align-items:center}
+.slid{display:grid;grid-template-columns:5.5rem 1fr 4.4ch auto;gap:.5rem;align-items:center}
 .slid input[type=range]{padding:0;min-height:44px;border:0;background:transparent;accent-color:var(--crema)}
 .slid.untouched input[type=range]{opacity:.45}
 .slid output{font:500 .82rem var(--mono);min-width:4.2ch;text-align:right}
@@ -135,7 +135,8 @@ footer .fine{font-size:.82rem}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.button,button{transition:none}}
 /* small screens: counter becomes a header, roll follows */
 @media (max-width:860px){
- .shell{grid-template-columns:1fr}
+ .shell{grid-template-columns:1fr;align-content:start}
+ .tag{margin-top:.9rem}
  .counter{position:relative;height:auto;overflow:visible;padding:1.1rem 1.1rem 1.4rem;gap:1rem}
  .mark{font-size:clamp(4.6rem,26vw,8rem);display:flex;align-items:flex-end;gap:.04em;margin-bottom:-.1em}
  .mark .shop{display:inline;margin:0}
@@ -144,6 +145,6 @@ footer .fine{font-size:.82rem}
  .mini{grid-template-columns:1fr 1fr}
  .pair{grid-template-columns:4.6rem 1fr 3.2rem}
  .writer .two{grid-template-columns:1fr}
- .slid{grid-template-columns:4.6rem 1fr auto}
+ .slid{grid-template-columns:4.6rem 1fr 4.4ch auto}
 }
 @media (max-width:360px){.receipt{padding-left:.9rem;padding-right:.9rem}.entry .sc{font-size:2.3rem}}
