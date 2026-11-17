@@ -10,6 +10,8 @@ concurrency:
   cancel-in-progress: false
 jobs:
   deploy:
+    # Held until the Pages project name is confirmed: set the repo variable CF_PAGES_PROJECT to enable deploys.
+    if: ${{ vars.CF_PAGES_PROJECT != '' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,7 +21,7 @@ jobs:
       - run: npm test
       # Publish the validated build from this exact default-branch commit.
       - name: Deploy master to production
-        run: npx --yes wrangler@4.151.2 pages deploy dist --project-name="${CF_PAGES_PROJECT:-myshop}" --branch=master --commit-hash="${{ github.sha }}" --commit-dirty=false
+        run: npx --yes wrangler@4.151.2 pages deploy dist --project-name="${CF_PAGES_PROJECT}" --branch=master --commit-hash="${{ github.sha }}" --commit-dirty=false
         env:
           CF_PAGES_PROJECT: ${{ vars.CF_PAGES_PROJECT }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
