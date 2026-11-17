@@ -8,6 +8,8 @@ permissions:
   issues: write
 jobs:
   drift:
+    # Held with deploys: the configured origin is not ours until CF_PAGES_PROJECT is set.
+    if: ${{ vars.CF_PAGES_PROJECT != '' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
