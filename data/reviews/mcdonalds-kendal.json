@@ -1,0 +1,56 @@
+{
+  "shopId": "mcdonalds-kendal",
+  "reviewed": true,
+  "date": "2026-11-17",
+  "visit": {
+    "drink": "Americano",
+    "priceGbp": null,
+    "when": null,
+    "seat": null,
+    "milk": "No (black)"
+  },
+  "coffee": {
+    "score": null,
+    "notes": "",
+    "aroma": {
+      "quantity": -100,
+      "quality": -8,
+      "notes": "Basically none"
+    },
+    "acidity": {
+      "quantity": -100,
+      "quality": null,
+      "notes": "Literally none"
+    },
+    "sweetness": {
+      "quantity": null,
+      "quality": null,
+      "notes": "White chocolate, sweetened caramel"
+    },
+    "body": {
+      "quantity": -42,
+      "quality": null,
+      "notes": "None to speak of"
+    },
+    "finish": {
+      "quantity": -100,
+      "quality": -4,
+      "notes": "It leaves fast. What is left, it's a bit bitter/roasty"
+    }
+  },
+  "space": {
+    "score": null,
+    "notes": ""
+  },
+  "service": {
+    "score": null,
+    "notes": ""
+  },
+  "value": {
+    "score": null,
+    "notes": ""
+  },
+  "flavour": "Bog standard. It's coffee. Bit of chocolate.",
+  "overall": 50,
+  "notes": "It's not horrible but it's just... coffee. Not exciting. At least it's cheap."
+}

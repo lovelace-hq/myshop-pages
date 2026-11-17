@@ -14,6 +14,13 @@ if (real) {
   assert.ok(!fs.existsSync(path.join(dist, 'review')), 'no review pages with zero reviews');
   assert.match(read('feed.xml'), /<feed /); assert.ok(!/<entry>/.test(read('feed.xml')));
 }
+else {
+  // Real data present: every published review has a page, home lists it, nothing is invented.
+  const reviews = fs.readdirSync(ROOT + '/data/reviews').filter((f) => f.endsWith('.json')).map((f) => JSON.parse(fs.readFileSync(`${ROOT}/data/reviews/${f}`, 'utf8'))).filter((r) => r.reviewed);
+  const home = read('index.html');
+  for (const r of reviews) { assert.ok(fs.existsSync(path.join(dist, `review/${r.shopId}/index.html`)), 'page for ' + r.shopId); assert.ok(home.includes(`/review/${r.shopId}/`), 'home links ' + r.shopId); }
+  assert.ok(!/No visits yet/.test(home) || !reviews.length);
+}
 for (const p of ['index.html', 'method/index.html', 'about/index.html', 'contact/index.html', 'privacy/index.html', 'write/index.html', '404.html', 'sitemap.xml', 'robots.txt', 'llms.txt', '_headers'])
   assert.ok(fs.existsSync(path.join(dist, p)), p + ' exists');
 assert.ok(!read('sitemap.xml').includes('/write/'), 'writer not in sitemap'); assert.match(read('write/index.html'), /noindex/);
@@ -33,6 +40,7 @@ try {
   fs.copyFileSync(ROOT + '/package.json', tmp + '/package.json'); fs.copyFileSync(ROOT + '/site-config.json', tmp + '/site-config.json');
   const ex = JSON.parse(fs.readFileSync(ROOT + '/docs/example-review.json', 'utf8'));
   const shops = [{ id: 'old-one', name: 'Old One', area: 'Leith' }, { id: 'new-one', name: 'New One', area: 'Stockbridge' }, { id: 'later', name: 'Later', area: 'Glasgow' }];
+  for (const f of fs.readdirSync(tmp + '/data/reviews')) fs.rmSync(`${tmp}/data/reviews/${f}`);
   fs.writeFileSync(tmp + '/data/shops.json', JSON.stringify(shops));
   for (const [id, date, o] of [['old-one', '2026-10-01', 55], ['new-one', '2026-11-05', 88]]) {
     const r = structuredClone(ex); r.shopId = id; r.date = date; r.overall = o; if (id === 'old-one') { r.coffee.score = null; r.coffee.aroma.quantity = null; }
