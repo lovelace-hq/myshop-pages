@@ -1,0 +1,12 @@
+{
+  "name": "myshop-pages",
+  "version": "1.0.0",
+  "description": "Coffee shop reviews. Shops in data/shops.json, one review per shop in data/reviews/<shopId>.json. Zero dependencies.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "test": "node tools/build.mjs && node tests/schema.mjs && node tests/build.mjs && node tests/headers.mjs && node tests/rules.mjs"
+  },
+  "engines": { "node": ">=20" }
+}

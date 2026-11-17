@@ -1,0 +1,56 @@
+{
+  "shopId": "example-roasters",
+  "reviewed": true,
+  "date": "2026-11-17",
+  "visit": {
+    "drink": "Flat white",
+    "priceGbp": 3.6,
+    "when": "Saturday 10am",
+    "seat": "in",
+    "milk": "Whole"
+  },
+  "coffee": {
+    "score": 82,
+    "notes": "Sweet, clean, a little short.",
+    "aroma": {
+      "quantity": 40,
+      "quality": 55,
+      "notes": ""
+    },
+    "acidity": {
+      "quantity": 20,
+      "quality": 30,
+      "notes": ""
+    },
+    "sweetness": {
+      "quantity": 60,
+      "quality": 70,
+      "notes": ""
+    },
+    "body": {
+      "quantity": 35,
+      "quality": 45,
+      "notes": ""
+    },
+    "finish": {
+      "quantity": -20,
+      "quality": 10,
+      "notes": ""
+    }
+  },
+  "space": {
+    "score": 70,
+    "notes": "Bright, loud at the counter."
+  },
+  "service": {
+    "score": 90,
+    "notes": "Quick and warm."
+  },
+  "value": {
+    "score": 60,
+    "notes": "Fair for the area."
+  },
+  "flavour": "Caramel, hazelnut.",
+  "overall": 78,
+  "notes": "Would go back."
+}
