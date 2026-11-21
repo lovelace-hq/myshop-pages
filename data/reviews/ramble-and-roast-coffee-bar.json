@@ -1,0 +1,68 @@
+{
+  "shopId": "ramble-and-roast-coffee-bar",
+  "reviewed": false,
+  "date": null,
+  "visit": {
+    "drink": "",
+    "priceGbp": null,
+    "when": "",
+    "seat": null,
+    "milk": ""
+  },
+  "coffee": {
+    "score": null,
+    "notes": "",
+    "aroma": {
+      "quantity": null,
+      "quality": null,
+      "notes": ""
+    },
+    "acidity": {
+      "quantity": null,
+      "quality": null,
+      "notes": ""
+    },
+    "sweetness": {
+      "quantity": null,
+      "quality": null,
+      "notes": ""
+    },
+    "body": {
+      "quantity": null,
+      "quality": null,
+      "notes": ""
+    },
+    "finish": {
+      "quantity": null,
+      "quality": null,
+      "notes": ""
+    }
+  },
+  "space": {
+    "score": null,
+    "notes": ""
+  },
+  "service": {
+    "score": null,
+    "notes": ""
+  },
+  "value": {
+    "score": null,
+    "notes": ""
+  },
+  "flavour": "Caramel, hazelnut.",
+  "overall": null,
+  "notes": "",
+  "photos": [
+    {
+      "file": "data/photos/ramble-and-roast-coffee-bar/smart-car-coffee-bar.jpg",
+      "alt": "Ramble & Roast coffee bar in the open boot of a white Smart car on a railway platform.",
+      "caption": "Coffee from a Smart car."
+    },
+    {
+      "file": "data/photos/ramble-and-roast-coffee-bar/platform-counter.jpg",
+      "alt": "A barista serves drinks from the Ramble & Roast Smart car beside a wooden platform counter.",
+      "caption": "The platform coffee counter."
+    }
+  ]
+}

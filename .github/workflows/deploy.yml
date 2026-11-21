@@ -18,6 +18,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - run: npm ci
       - run: npm test
       # Publish the validated build from this exact default-branch commit.
       - name: Deploy master to production

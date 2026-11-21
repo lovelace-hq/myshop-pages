@@ -59,3 +59,15 @@ Or paste JSON straight into the files by hand: the shape is below.
 - The `date` decides feed order (newest first; ties broken by shop id).
 
 A copy of this example lives at `docs/example-review.json`. It is documentation only and is never built into the site.
+
+## Photos
+
+Reviews may include `photos: [{ "file": "data/photos/<shopId>/counter.jpg", "alt": "A useful image description", "caption": "Optional caption" }]`. All three keys are required; caption may be empty. Use safe lowercase filenames (letters, numbers and hyphens). At most 12 still JPEG, PNG, WebP or AVIF photos per shop, 25 MB and 60 megapixels each. Paths must belong to that shop. Keep original metadata out of git: use the writer's cleaned downloads, not camera originals.
+
+At /write/, attach photos, enter an image description for each, optionally add captions, then choose Make JSON. Download the review JSON and each cleaned photo using its download button. Put the JSON in data/reviews/<shopId>.json and photos in data/photos/<shopId>/. New shops also need the generated shop entry in data/shops.json. Send Kat the JSON and cleaned photos if you prefer it to publish them. There is no server upload.
+
+Importing a review preserves its photo references; existing photos do not need downloading again. Replacing them is explicit via Remove and Attach. The writer decodes and re-encodes photos locally, so no EXIF or GPS leaves the device in its downloads. It requires a modern browser; export HEIC to JPEG first.
+
+The build auto-orients, decodes to bare pixels, and re-encodes only WebP and JPEG at 480, 960 and up to 1600 pixels, without enlarging. Metadata is stripped regardless of what the source contains. Camera originals are never copied to dist. Public HTML uses responsive source sets, lazy loading, intrinsic dimensions and native keyboard-operable details/summary enlargement. No gallery JS or relaxed CSP is needed. Reviews expose image URLs in Review JSON-LD, /api/reviews.json and /review/<shopId>/index.md.
+
+A shop with photos but no review stays explicitly unrated, with no Review schema or invented score, at /photos/<shopId>/. These photos are also in /api/photos.json and /photos/<shopId>/index.md. Check visible faces, number plates and personal details before publication: metadata cleaning does not remove things visible in the picture.

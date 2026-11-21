@@ -37,6 +37,7 @@ for (const f of walk(dist).filter((f) => f.endsWith('.html'))) {
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'myshop-test-'));
 try {
   for (const d of ['tools', 'site', 'data', 'docs']) fs.cpSync(path.join(ROOT, d), path.join(tmp, d), { recursive: true });
+  fs.symlinkSync(ROOT + '/node_modules', tmp + '/node_modules', 'dir');
   fs.copyFileSync(ROOT + '/package.json', tmp + '/package.json'); fs.copyFileSync(ROOT + '/site-config.json', tmp + '/site-config.json');
   const ex = JSON.parse(fs.readFileSync(ROOT + '/docs/example-review.json', 'utf8'));
   const shops = [{ id: 'old-one', name: 'Old One', area: 'Leith' }, { id: 'new-one', name: 'New One', area: 'Stockbridge' }, { id: 'later', name: 'Later', area: 'Glasgow' }];

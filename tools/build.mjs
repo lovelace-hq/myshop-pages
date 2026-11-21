@@ -1,7 +1,8 @@
-// Builds dist/ from data/ + site/. Zero dependencies. Deterministic: same inputs, same bytes.
+// Builds dist/ from data/ + site/. Uses sharp for local image processing. Deterministic: same inputs, same bytes.
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { processPhotos } from './photos.mjs';
 import { ROOT, loadData, readJson } from './validate.mjs';
 
 const CFG = readJson('site-config.json');
@@ -21,6 +22,9 @@ const waiting = shops.filter((s) => !reviewedIds.has(s.id));
 
 fs.rmSync(DIST, { recursive: true, force: true });
 const out = (p, data) => { const f = path.join(DIST, p); fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, data); };
+
+const photoMap = new Map();
+for (const r of reviews) photoMap.set(r.shopId, await processPhotos(ROOT, DIST, r.shopId, r.photos));
 
 // ---------- artwork: mypod's specimen-dot style (concentric rings + soft highlight + ink border), tinted per shop ----------
 const TONES = ['#7f93b0', '#c27e4a', '#b0654a', '#c9a24a', '#5f9d73', '#c47aa0', '#7a6fa3'];
@@ -115,7 +119,17 @@ ${waiting.length ? waitingList() : ''}</div>`;
   return page({ title: 'myshop · coffee shop reviews, itemised', desc: 'Coffee shop reviews: the cup, the space, the service and the value, with honest notes and one score out of 100. Sister site of mypod.', path: '/', body, current: '/' });
 }
 function waitingList() {
-  return `<h2>On the list</h2><ul class="shoplist">${waiting.map((s) => `<li><img src="${dotFile(toneFor(s.id))}" width="28" height="28" alt=""><span>${esc(s.name)} <span class="ghost">· ${esc(s.area)}</span></span><span class="st">not visited yet</span></li>`).join('')}</ul>`;
+  return `<h2>On the list</h2><ul class="shoplist">${waiting.map((s) => `<li><img src="${dotFile(toneFor(s.id))}" width="28" height="28" alt=""><span>${photoMap.get(s.id)?.length ? `<a href="/photos/${s.id}/">${esc(s.name)}</a>` : esc(s.name)} <span class="ghost">· ${esc(s.area)}</span></span><span class="st">${photoMap.get(s.id)?.length ? 'photos · not rated' : 'not visited yet'}</span></li>`).join('')}</ul>`;
+}
+
+function gallery(r) {
+  const photos = photoMap.get(r.shopId) || [];
+  if (!photos.length) return '';
+  return '<section class="photos" aria-label="Visit photos"><h2>From the visit</h2><p class="note">Tap a photo to enlarge. Tap again to fold it away.</p><div class="photo-grid">' + photos.map(p => {
+    const largest = p.variants.at(-1);
+    const thumb = p.variants.find(v => v.width >= 480) || largest;
+    return `<details class="photo"><summary><picture><source type="image/webp" srcset="${p.variants.map(v => v.webp + ' ' + v.width + 'w').join(', ')}" sizes="(max-width: 600px) 85vw, 320px"><img src="${thumb.jpeg}" srcset="${p.variants.map(v => v.jpeg + ' ' + v.width + 'w').join(', ')}" sizes="(max-width: 600px) 85vw, 320px" width="${p.width}" height="${p.height}" loading="lazy" decoding="async" alt="${esc(p.alt)}"></picture><span class="photo-label">${esc(p.caption || p.alt)} <span aria-hidden="true">＋</span></span></summary><picture class="photo-large"><source type="image/webp" srcset="${largest.webp}"><img src="${largest.jpeg}" width="${p.width}" height="${p.height}" alt="${esc(p.alt)}" loading="lazy" decoding="async"></picture></details>`;
+  }).join('') + '</div></section>';
 }
 
 function reviewPage(r) {
@@ -133,7 +147,7 @@ function reviewPage(r) {
   }).join('');
   const body = `<p class="eyebrow"><a href="/">&larr; All visits</a></p>
 <h1>${esc(s.name)}</h1><ul class="meta">${meta}</ul>${s.website ? `<p class="body"><a href="${esc(s.website)}" rel="noopener">${esc(s.website.replace(/^https:\/\//, '').replace(/\/$/, ''))}</a></p>` : ''}
-<hr class="rule"><ul class="items">${PILLARS.map(([k, l], i) => item(l, r[k].score, r[k].notes, i)).join('')}</ul>
+${gallery(r)}<hr class="rule"><ul class="items">${PILLARS.map(([k, l], i) => item(l, r[k].score, r[k].notes, i)).join('')}</ul>
 <details class="cup" open><summary>The cup, line by line</summary><p class="note">Tasting-sheet lines from -100 (left end) to 100 (right end), 0 at the centre tick. Blank means not recorded.</p><ul class="items">${sheet}</ul></details>
 ${r.flavour ? `<h2>Flavour</h2><p class="body">${esc(r.flavour)}</p>` : ''}
 <div class="total"><span class="name">Total</span><span class="dots" aria-hidden="true"></span><span class="big" aria-label="Overall ${r.overall} out of 100">${r.overall}<small>/100</small></span></div>
@@ -142,6 +156,7 @@ ${r.flavour ? `<h2>Flavour</h2><p class="body">${esc(r.flavour)}</p>` : ''}
     '@type': 'Review', '@id': `${ORIGIN}/review/${r.shopId}/#review`, url: `${ORIGIN}/review/${r.shopId}/`, datePublished: r.date,
     itemReviewed: { '@type': 'CafeOrCoffeeShop', name: s.name, ...(s.website ? { url: s.website } : {}) },
     reviewRating: { '@type': 'Rating', ratingValue: r.overall, bestRating: 100, worstRating: 0 },
+    image: (photoMap.get(r.shopId) || []).map(p => ORIGIN + p.file),
     reviewBody: r.notes, author: { '@id': ORIGIN + '/#org' },
   }];
   return page({ title: `${s.name} · myshop review (${r.overall}/100)`, desc: `${s.name}, ${s.area}: ${r.overall}/100. ${r.notes}`.slice(0, 200), path: `/review/${r.shopId}/`, body, current: '/', ld });
@@ -184,12 +199,13 @@ function writerPage() {
 ${LINES.map(([k, l]) => `<fieldset><legend>${l}</legend>${sl(k + '.quantity', 'Quantity')}${sl(k + '.quality', 'Quality')}${ta(k + '.notes', l + ' notes', 1)}</fieldset>`).join('')}
 ${ta('flavour', 'Flavour')}</fieldset>
 ${[['space', 'Space'], ['service', 'Service'], ['value', 'Value']].map(([k, l]) => `<fieldset><legend>${l}</legend>${inp(k + '.score', l + ' score, 0 to 100', 'type="number" min="0" max="100" step="1" inputmode="numeric"')}${ta(k + '.notes', l + ' notes')}</fieldset>`).join('')}
+<fieldset><legend>Photos (optional)</legend><p class="note">JPEG, PNG, WebP or AVIF. Up to 12, 25 MB each. Photos stay on your device. Add an image description, then download each cleaned photo alongside the JSON. Only include photos you have permission to publish; check faces and visible personal details.</p><label>Attach photos<input id="photo-files" type="file" accept="image/jpeg,image/png,image/webp,image/avif" multiple></label><div id="photo-fields"></div><p id="photo-status" role="status"></p></fieldset>
 <fieldset><legend>The total</legend>${inp('overall', 'Overall enjoyment, 0 to 100 (required)', 'type="number" min="0" max="100" step="1" inputmode="numeric"')}${ta('notes', 'Overall notes (required)', 4)}</fieldset>
 <ul id="errors" class="err" role="alert" tabindex="-1" hidden></ul>
 <div><button class="primary" type="submit">Make the JSON</button></div><p id="result" class="status" role="status"></p>
 <div id="outputs" hidden><p id="file-hint" class="body"></p>
 <div id="shop-out" hidden><h3>Shop entry for data/shops.json</h3><pre id="out-shop" class="out"></pre><button type="button" data-copy="out-shop">Copy shop entry</button></div>
-<h3>Review JSON</h3><pre id="out-review" class="out"></pre><button type="button" data-copy="out-review">Copy review JSON</button></div>
+<h3>Review JSON</h3><pre id="out-review" class="out"></pre><button type="button" data-copy="out-review">Copy review JSON</button><button type="button" id="download-review">Download review JSON</button><div id="photo-downloads"></div></div>
 </form></div><script src="/assets/${wName}" defer></script>`;
   return page({ title: 'Writer · myshop', desc: 'Private local form for scoring a coffee shop visit.', path: '/write/', current: '', noindex: true, body, mainClass: 'writer-page' });
 }
@@ -198,14 +214,22 @@ const notFound = page({ title: 'Not found · myshop', desc: 'That page is not on
 
 // ---------- write pages ----------
 out('index.html', home());
+for (const r of reviews.filter(r => !r.reviewed && photoMap.get(r.shopId)?.length)) {
+  const shop = shopById.get(r.shopId), photos = photoMap.get(r.shopId);
+  out('photos/' + r.shopId + '/index.html', page({ title: shop.name + ' · Photos · myshop', desc: 'Photos of ' + shop.name + '. Not rated yet.', path: '/photos/' + r.shopId + '/', body: '<p class="eyebrow">PHOTO NOTES · NOT RATED</p><h1>' + esc(shop.name) + '</h1><p>' + esc(shop.area) + '</p><p>No review or scores yet.</p>' + gallery(r), ld: [{ '@type': 'ImageGallery', name: shop.name, image: photos.map(p => ORIGIN + p.file) }] }));
+}
+out('api/photos.json', JSON.stringify(reviews.filter(r => photoMap.get(r.shopId)?.length).map(r => ({ shopId: r.shopId, name: shopById.get(r.shopId).name, reviewed: r.reviewed, photos: photoMap.get(r.shopId).map(p => ({ ...p, file: ORIGIN + p.file, variants: p.variants.map(v => ({ ...v, jpeg: ORIGIN + v.jpeg, webp: ORIGIN + v.webp })) })) })), null, 2) + '\n');
+for (const r of reviews.filter(r => !r.reviewed && photoMap.get(r.shopId)?.length)) out('photos/' + r.shopId + '/index.md', '# ' + shopById.get(r.shopId).name + '\n\nPhotos only. Not rated yet.\n\n' + photoMap.get(r.shopId).map(p => '![' + p.alt.replace(/[\[\]\n]/g, '') + '](' + ORIGIN + p.file + ')\n\n' + p.caption).join('\n\n') + '\n');
 published.forEach((r) => out(`review/${r.shopId}/index.html`, reviewPage(r)));
 out('method/index.html', method); out('about/index.html', about); out('contact/index.html', contact); out('privacy/index.html', privacy);
 out('write/index.html', writerPage()); out('404.html', notFound);
 
+out('api/reviews.json', JSON.stringify(published.map(r => ({ ...r, photos: (photoMap.get(r.shopId) || []).map(p => ({ ...p, file: ORIGIN + p.file, variants: p.variants.map(v => ({ ...v, jpeg: ORIGIN + v.jpeg, webp: ORIGIN + v.webp })) })) })), null, 2) + '\n');
+for (const r of published) out('review/' + r.shopId + '/index.md', '# ' + shopById.get(r.shopId).name + '\n\n' + r.notes + '\n\n' + (photoMap.get(r.shopId) || []).map(p => '![' + p.alt.replace(/[\[\]\n]/g, '') + '](' + ORIGIN + p.file + ')' + (p.caption ? '\n\n' + p.caption : '')).join('\n\n') + '\n');
 // ---------- feeds, sitemap, robots, llms ----------
 const updated = (published[0]?.date || CFG.launched) + 'T00:00:00Z';
 out('feed.xml', `<?xml version="1.0" encoding="utf-8"?>\n<feed xmlns="http://www.w3.org/2005/Atom"><title>myshop visits</title><subtitle>Coffee shop reviews, newest first</subtitle><link href="${ORIGIN}/feed.xml" rel="self"/><link href="${ORIGIN}/"/><id>${ORIGIN}/</id><updated>${updated}</updated><author><name>myshop</name></author>${published.map((r) => { const s = shopById.get(r.shopId); return `<entry><title>${esc(s.name)} (${r.overall}/100)</title><link href="${ORIGIN}/review/${r.shopId}/"/><id>${ORIGIN}/review/${r.shopId}/</id><updated>${r.date}T00:00:00Z</updated><summary>${esc(r.notes)}</summary></entry>`; }).join('')}</feed>\n`);
-const urls = [['/', updated.slice(0, 10), '1.0'], ['/method/', null, '0.5'], ['/about/', null, '0.3'], ['/contact/', null, '0.2'], ['/privacy/', null, '0.2'], ...published.map((r) => [`/review/${r.shopId}/`, r.date, '0.8'])];
+const urls = [['/', updated.slice(0, 10), '1.0'], ['/method/', null, '0.5'], ['/about/', null, '0.3'], ['/contact/', null, '0.2'], ['/privacy/', null, '0.2'], ...published.map((r) => [`/review/${r.shopId}/`, r.date, '0.8']), ...reviews.filter(r => !r.reviewed && photoMap.get(r.shopId)?.length).map(r => [`/photos/${r.shopId}/`, null, '0.5'])];
 out('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map(([u, d, pr]) => `<url><loc>${ORIGIN}${u}</loc>${d ? `<lastmod>${d}</lastmod>` : ''}<priority>${pr}</priority></url>`).join('')}</urlset>\n`);
 out('robots.txt', `User-agent: *\n# Content-Signal: search=yes, ai-input=yes, ai-train=no\nAllow: /\nDisallow: /write/\nSitemap: ${ORIGIN}/sitemap.xml\n`);
 out('llms.txt', `# myshop\n\n> Coffee shop reviews: the cup, the space, the service and the value, scored out of 100 with honest notes. Sister site of mypod (${SISTER}).\n\n## Pages\n\n- [Visits](${ORIGIN}/): newest first (${published.length} so far)\n- [Method](${ORIGIN}/method/): how a visit is scored\n- [Feed](${ORIGIN}/feed.xml): Atom\n${published.map((r) => `- [${shopById.get(r.shopId).name}](${ORIGIN}/review/${r.shopId}/): ${r.overall}/100`).join('\n')}\n\nContact: ${EMAIL}\n`);

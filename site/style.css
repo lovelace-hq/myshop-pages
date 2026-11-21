@@ -148,3 +148,22 @@ footer .fine{font-size:.82rem}
  .slid{grid-template-columns:4.6rem 1fr 4.4ch auto}
 }
 @media (max-width:360px){.receipt{padding-left:.9rem;padding-right:.9rem}.entry .sc{font-size:2.3rem}}
+
+/* A contact sheet tucked into the receipt, with native keyboard-operable folds. */
+.photos{margin:2.5rem 0;border-top:1px dashed currentColor;padding-top:1.2rem}
+.photo-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.25rem}
+.photo{min-width:0;border-bottom:1px solid #ccc2ae;padding-bottom:.75rem}
+.photo summary{cursor:zoom-in;list-style:none}
+.photo summary::-webkit-details-marker{display:none}
+.photo picture{display:block}
+.photo img{display:block;width:100%;height:auto;background:#e8e0d0}
+.photo summary img{aspect-ratio:4/3;object-fit:cover}
+.photo-label{display:flex;justify-content:space-between;gap:1rem;font-size:.85rem;margin-top:.65rem}
+.photo[open]{grid-column:1/-1}
+.photo[open] summary{cursor:zoom-out}
+.photo[open] summary picture{display:none}
+.photo-large{margin-top:1rem}
+.photo summary:focus-visible{outline:3px solid #b8470c;outline-offset:5px}
+.photo-editor{border-top:1px dashed #ccc2ae;margin-top:1rem;padding-top:1rem}
+#photo-downloads a{display:block;margin-top:.8rem}
+@media(max-width:500px){.photo-grid{grid-template-columns:1fr}}
