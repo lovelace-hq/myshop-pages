@@ -105,7 +105,7 @@ function entry(r) {
 
 function homeSumup() {
   if (!SUMUP_REFERRAL) return '';
-  return '<aside class="sumup-quiet" aria-label="SumUp customer offer"><p><span class="sumup-quiet-k">A small perk</span> Pay with SumUp at shops that take it and get 5% cashback (capped at £10/month); the shop pays no fees on that payment. New to SumUp? Use code JACK6191 for £10: <a href="' + esc(SUMUP_REFERRAL) + '" rel="sponsored noopener">get the offer</a>. <span class="sumup-quiet-d">Referral link, we get a reward too. <a href="https://www.sumup.com/en-gb/personal/legal/refer-a-friend/">Terms</a> apply.</span></p></aside>';
+  return '<aside class="sumup-quiet" aria-label="SumUp customer offer"><p><span class="sumup-quiet-k">Get cashback on your coffee</span> Pay with the SumUp card at shops that take it and get 5% cashback (capped at £10/month); the shop pays no fees on that payment. Elsewhere you still get 0.5% or more back (2% at supermarkets). New to SumUp? Use code JACK6191 for £10: <a href="' + esc(SUMUP_REFERRAL) + '" rel="sponsored noopener">get the offer</a>. <span class="sumup-quiet-d">Referral link, we get a reward too. <a href="https://www.sumup.com/en-gb/personal/legal/refer-a-friend/">Terms</a> apply.</span></p></aside>';
 }
 
 function home() {
