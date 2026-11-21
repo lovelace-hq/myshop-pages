@@ -181,3 +181,9 @@ footer .fine{font-size:.82rem}
 .sumup-business{font-size:.65rem!important;line-height:1.5;margin:.8rem .15rem 0;color:#615c52}
 .sumup-business a{color:inherit}
 .shell>*{min-width:0}.sumup-cta{white-space:normal;overflow-wrap:anywhere}
+
+.sumup-quiet{margin:2.5rem 0 .5rem;padding-top:.9rem;border-top:1px dashed var(--paper-line)}
+.sumup-quiet p{margin:0;font-size:.78rem;line-height:1.6;color:#5d574c;max-width:62ch}
+.sumup-quiet a{color:inherit;overflow-wrap:anywhere}
+.sumup-quiet-k{font:500 .62rem/1.4 var(--mono);letter-spacing:.13em;text-transform:uppercase;color:var(--crema);margin-right:.4rem}
+.sumup-quiet-d{font-size:.7rem}

@@ -103,6 +103,11 @@ function entry(r) {
   return `<li class="entry"><div class="head"><img src="${dotFile(toneFor(r.shopId))}" width="44" height="44" alt=""><div><p class="eyebrow">${esc(fmtDate(r.date))} · ${esc(s.area)}</p><h3><a href="/review/${r.shopId}/">${esc(s.name)}</a></h3></div><div class="sc" aria-label="Overall ${r.overall} out of 100">${r.overall}<small>/100</small></div></div><ul class="mini">${mini}</ul></li>`;
 }
 
+function homeSumup() {
+  if (!SUMUP_REFERRAL) return '';
+  return '<aside class="sumup-quiet" aria-label="SumUp customer offer"><p><span class="sumup-quiet-k">A small perk</span> Pay with SumUp at shops that take it and get 5% cashback (capped at £10/month); the shop pays no fees on that payment. New to SumUp? Use code JACK6191 for £10: <a href="' + esc(SUMUP_REFERRAL) + '" rel="sponsored noopener">get the offer</a>. <span class="sumup-quiet-d">Referral link, we get a reward too. <a href="https://www.sumup.com/en-gb/personal/legal/refer-a-friend/">Terms</a> apply.</span></p></aside>';
+}
+
 function home() {
   let body;
   if (!published.length) {
@@ -112,11 +117,11 @@ function home() {
 <div class="total"><span class="name">Total</span><span class="dots" aria-hidden="true"></span><span class="big"><span aria-label="no score yet">&ndash;</span><small>/100</small></span></div>
 <p class="ghost">Nothing tasted. Nothing scored.</p>
 <p class="body"><a class="button" href="/method/">How a visit is scored</a></p>
-${waiting.length ? waitingList() : ''}</div>`;
+${waiting.length ? waitingList() : ''}${homeSumup()}</div>`;
   } else {
     body = `<p class="eyebrow">Visit log · ${published.length} visit${published.length === 1 ? '' : 's'} · newest first</p><h1>Coffee shops, itemised.</h1>
 <p class="lede">The cup, the space, the service and the value, scored out of 100 with honest notes, then one total.</p>
-<hr class="rule"><ol class="feed">${published.map(entry).join('')}</ol>${waiting.length ? waitingList() : ''}`;
+<hr class="rule"><ol class="feed">${published.map(entry).join('')}</ol>${waiting.length ? waitingList() : ''}${homeSumup()}`;
   }
   return page({ title: 'myshop · coffee shop reviews, itemised', desc: 'Coffee shop reviews: the cup, the space, the service and the value, with honest notes and one score out of 100. Sister site of mypod.', path: '/', body, current: '/' });
 }
