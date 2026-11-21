@@ -1,58 +1,58 @@
 {
   "shopId": "ramble-and-roast-oxn",
-  "reviewed": false,
-  "date": null,
+  "reviewed": true,
+  "date": "2026-11-21",
   "visit": {
-    "drink": "",
-    "priceGbp": null,
-    "when": "",
+    "drink": "Americano",
+    "priceGbp": 3.7,
+    "when": "11:35",
     "seat": null,
-    "milk": ""
+    "milk": "no"
   },
   "coffee": {
-    "score": null,
-    "notes": "",
+    "score": 95,
+    "notes": "Ramble and Roast is consistently one of my favourite coffees. Always an interesting, acidy, tasty coffee - a must have if you're anywhere near Oxenholme.",
     "aroma": {
-      "quantity": null,
-      "quality": null,
-      "notes": ""
+      "quantity": 70,
+      "quality": 100,
+      "notes": "Sweet berry, blueberry, raspberry, turning towards orange"
     },
     "acidity": {
-      "quantity": null,
-      "quality": null,
-      "notes": ""
+      "quantity": 100,
+      "quality": 100,
+      "notes": "Apple, Lemon, Clean and refreshing"
     },
     "sweetness": {
-      "quantity": null,
-      "quality": null,
-      "notes": ""
+      "quantity": -85,
+      "quality": 32,
+      "notes": "Really not very sweet at all. There's a bit of velvet chocolate if I hunt for it. Maybe caramel."
     },
     "body": {
-      "quantity": null,
-      "quality": null,
-      "notes": ""
+      "quantity": -63,
+      "quality": 44,
+      "notes": "Light, but coating"
     },
     "finish": {
-      "quantity": null,
-      "quality": null,
-      "notes": ""
+      "quantity": -86,
+      "quality": 54,
+      "notes": "Disappointingly fleeting. I wish I could enjoy it for longer. But it leaves a refreshing apple."
     }
   },
   "space": {
-    "score": null,
-    "notes": ""
+    "score": 30,
+    "notes": "I mean, it's literally a car boot in a train station. At least it's convenient"
   },
   "service": {
-    "score": null,
-    "notes": ""
+    "score": 65,
+    "notes": "Perfectly acceptable"
   },
   "value": {
-    "score": null,
-    "notes": ""
+    "score": 85,
+    "notes": "Always worth it"
   },
-  "flavour": "Caramel, hazelnut.",
-  "overall": null,
-  "notes": "",
+  "flavour": "Caramel, Apple, Bright berry, citrus",
+  "overall": 95,
+  "notes": "Ramble and Roast is all about the coffee. By the nature of their car-bar it's no frills, so they really have to compete on their coffee - and compete they do. I've had worse coffees at specialty traditional cafes. If you are ever in or near Oxenholme, you gotta come here.",
   "photos": [
     {
       "file": "data/photos/ramble-and-roast-oxn/smart-car-coffee-bar.jpg",

@@ -259,4 +259,4 @@ out('_headers', `/*
 console.log(`built ${published.length} review(s), ${shops.length} shop(s) -> dist/ (origin ${ORIGIN})`);
 
 // Permanent redirects for the original photo-note identifier.
-out('_redirects', '/photos/ramble-and-roast-coffee-bar/ /photos/ramble-and-roast-oxn/ 301\n/photos/ramble-and-roast-coffee-bar/* /photos/ramble-and-roast-oxn/:splat 301\n/review/ramble-and-roast-coffee-bar/ /photos/ramble-and-roast-oxn/ 301\n');
+out('_redirects', '/photos/ramble-and-roast-oxn/ /review/ramble-and-roast-oxn/ 301\n/photos/ramble-and-roast-coffee-bar/ /review/ramble-and-roast-oxn/ 301\n/photos/ramble-and-roast-coffee-bar/* /photos/ramble-and-roast-oxn/:splat 301\n/review/ramble-and-roast-coffee-bar/ /review/ramble-and-roast-oxn/ 301\n');

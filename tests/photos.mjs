@@ -36,16 +36,16 @@ try {
   for (const photos of [[{...p, file:'https://evil.test/a.jpg'}], [{...p, alt:''}], Array(13).fill(p), [{...p, file:'data/photos/other/sample.jpg'}]]) {
     assert.ok(checkReview({...r,photos}, ids).length, 'reject malformed photos');
   }
-  const html = fs.readFileSync(ROOT + '/dist/photos/ramble-and-roast-oxn/index.html','utf8');
+  const html = fs.readFileSync(ROOT + '/dist/review/ramble-and-roast-oxn/index.html','utf8');
   assert.match(html, /<details class="photo">/); assert.match(html, /srcset=/);
   assert.match(html, /loading="lazy"/); assert.match(html, /width="1600" height="900"/);
-  assert.ok(!html.includes('"@type":"Review"'), 'photos-only is not a fabricated review');
-  assert.ok(!html.includes('undefined')); assert.match(html, /"@type":"ImageGallery"/);
-  assert.match(html, /rel="canonical" href="https:\/\/mycoffeeshop.pages.dev\/photos\/ramble-and-roast-oxn\/"/);
+  assert.ok(html.includes('"@type":"Review"'), 'owner supplied full review');
+  assert.ok(!html.includes('undefined')); assert.match(html, /"ratingValue":95/);
+  assert.match(html, /rel="canonical" href="https:\/\/mycoffeeshop.pages.dev\/review\/ramble-and-roast-oxn\/"/);
   assert.equal(JSON.parse(fs.readFileSync(ROOT+'/dist/api/photos.json'))[0].photos.length,2);
   assert.ok(!fs.existsSync(ROOT+'/dist/data/photos'), 'no originals exposed');
-  assert.match(fs.readFileSync(ROOT+'/dist/photos/ramble-and-roast-oxn/index.md','utf8'), /https:\/\/mycoffeeshop.pages.dev\/photos\//);
+  assert.match(fs.readFileSync(ROOT+'/dist/review/ramble-and-roast-oxn/index.md','utf8'), /https:\/\/mycoffeeshop.pages.dev\/photos\//);
 } finally { fs.rmSync(tmp, { recursive:true, force:true }); }
 console.log('photos ok: EXIF/GPS stripped, variants, dimensions, deterministic, safe paths, limits, gallery/API/markdown');
 
-assert.match(fs.readFileSync(ROOT + '/dist/_redirects', 'utf8'), /ramble-and-roast-coffee-bar\/ \/photos\/ramble-and-roast-oxn\/ 301/);
+assert.match(fs.readFileSync(ROOT + '/dist/_redirects', 'utf8'), /ramble-and-roast-coffee-bar\/ \/review\/ramble-and-roast-oxn\/ 301/);
