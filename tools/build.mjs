@@ -108,6 +108,11 @@ function homeSumup() {
   return '<aside class="sumup-quiet" aria-label="SumUp customer offer"><p><span class="sumup-quiet-k">Get cashback on your coffee</span> Pay with the SumUp card at shops that take it and get 5% cashback (capped at £10/month); the shop pays no fees on that payment. Elsewhere you still get 0.5% or more back (2% at supermarkets). New to SumUp? Use code JACK6191 for £10: <a href="' + esc(SUMUP_REFERRAL) + '" rel="sponsored noopener">get the offer</a>. <span class="sumup-quiet-d">Referral link, we get a reward too. <a href="https://www.sumup.com/en-gb/personal/legal/refer-a-friend/">Terms</a> apply.</span></p></aside>';
 }
 
+function topSumup(s) {
+  if (s.paymentSumUp || !SUMUP_REFERRAL) return '';
+  return '<aside class="sumup-quiet sumup-top" aria-label="SumUp customer offer"><p><span class="sumup-quiet-k">Get 0.5% cashback</span> Pay with a SumUp card anywhere and get 0.5% or more back. Many coffee shops take SumUp, where you would get 5%. New to SumUp? Use code JACK6191 for £10: <a href="' + esc(SUMUP_REFERRAL) + '" rel="sponsored noopener">get the offer</a>. <span class="sumup-quiet-d">Referral link, we get a reward too. <a href="https://www.sumup.com/en-gb/personal/legal/refer-a-friend/">Terms</a> apply.</span></p></aside>';
+}
+
 function home() {
   let body;
   if (!published.length) {
@@ -157,7 +162,7 @@ function reviewPage(r) {
     return `<li class="item"><h3>${l}</h3>${row('Quantity', x.quantity, 0)}${row('Quality', x.quality, 1)}${x.notes ? `<p class="note">${esc(x.notes)}</p>` : ''}</li>`;
   }).join('');
   const body = `<p class="eyebrow"><a href="/">&larr; All visits</a></p>
-<h1>${esc(s.name)}</h1><ul class="meta">${meta}</ul>${s.website ? `<p class="body"><a href="${esc(s.website)}" rel="noopener">${esc(s.website.replace(/^https:\/\//, '').replace(/\/$/, ''))}</a></p>` : ''}
+${topSumup(s)}<h1>${esc(s.name)}</h1><ul class="meta">${meta}</ul>${s.website ? `<p class="body"><a href="${esc(s.website)}" rel="noopener">${esc(s.website.replace(/^https:\/\//, '').replace(/\/$/, ''))}</a></p>` : ''}
 ${sumup(s)}${gallery(r)}<hr class="rule"><ul class="items">${PILLARS.map(([k, l], i) => item(l, r[k].score, r[k].notes, i)).join('')}</ul>
 <details class="cup" open><summary>The cup, line by line</summary><p class="note">Tasting-sheet lines from -100 (left end) to 100 (right end), 0 at the centre tick. Blank means not recorded.</p><ul class="items">${sheet}</ul></details>
 ${r.flavour ? `<h2>Flavour</h2><p class="body">${esc(r.flavour)}</p>` : ''}
