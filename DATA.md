@@ -71,3 +71,11 @@ Importing a review preserves its photo references; existing photos do not need d
 The build auto-orients, decodes to bare pixels, and re-encodes only WebP and JPEG at 480, 960 and up to 1600 pixels, without enlarging. Metadata is stripped regardless of what the source contains. Camera originals are never copied to dist. Public HTML uses responsive source sets, lazy loading, intrinsic dimensions and native keyboard-operable details/summary enlargement. No gallery JS or relaxed CSP is needed. Reviews expose image URLs in Review JSON-LD, /api/reviews.json and /review/<shopId>/index.md.
 
 A shop with photos but no review stays explicitly unrated, with no Review schema or invented score, at /photos/<shopId>/. These photos are also in /api/photos.json and /photos/<shopId>/index.md. Check visible faces, number plates and personal details before publication: metadata cleaning does not remove things visible in the picture.
+
+## One-file writer import
+
+The writer downloads one JSON bundle with `shop` and `review`. Photos are resized to 1600px and re-encoded through browser canvas before embedding as JPEG data URLs. New and existing shops are included in the same file.
+
+Run `node tools/import-review.mjs /path/to/download.json`. The importer validates both records, rejects unsafe paths/symlinks and oversized images, decodes and re-encodes raw pixels to strip metadata again, writes cleaned photos under `data/photos/<shopId>/`, updates the shop record, and writes the plain review JSON. Run `npm test`, commit all changed data/photos, merge and deploy master. Never commit the download itself.
+
+The shop-level optional boolean `paymentSumUp` is controlled by the writer's Takes SumUp checkbox. Only mark it when confirmed. The configurable `SUMUP_REFERRAL` in tools/build.mjs is a personal spending referral, not a merchant-processing offer. Empty it to disable referral links. Terms checked 21 November 2026 at https://www.sumup.com/en-gb/personal/referrals/ and https://www.sumup.com/en-gb/personal/legal/refer-a-friend/. No blanket 5% or no-fees claim is made.

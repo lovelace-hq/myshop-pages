@@ -28,11 +28,12 @@
   const slug = (s) => s.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   const isNew = () => shopSel.value === '__new';
   const syncNew = () => { newBox.hidden = !isNew(); };
-  shopSel.addEventListener('change', syncNew);
+  shopSel.addEventListener('change', () => { syncNew(); form.elements.paymentSumUp.checked = !isNew() && JSON.parse(shopSel.selectedOptions[0].dataset.shop).paymentSumUp === true; });
   let idTouched = false;
   form.elements.newId.addEventListener('input', () => { idTouched = true; });
   form.elements.newName.addEventListener('input', () => { if (!idTouched) form.elements.newId.value = slug(val('newName')); });
   syncNew();
+  if (!isNew()) form.elements.paymentSumUp.checked = JSON.parse(shopSel.selectedOptions[0].dataset.shop).paymentSumUp === true;
 
   let attachedPhotos = [], photosBusy = false;
   const photoFields = $('#photo-fields'), photoStatus = $('#photo-status');
@@ -73,7 +74,7 @@
           const stem = slug(file.name.replace(/\.[^.]+$/, '')).slice(0, 48) || 'photo';
           let name = stem + '.jpg', n = 2;
           while ([...attachedPhotos, ...added].some(p => p.name === name)) name = stem + '-' + n++ + '.jpg';
-          added.push({ name, blob, alt: '', caption: '' });
+          added.push({ name, blob, data: canvas.toDataURL('image/jpeg', .9), alt: '', caption: '' });
         } finally { image.close(); }
       }
       attachedPhotos.push(...added); renderPhotoFields();
@@ -86,9 +87,9 @@
     setTimeout(() => URL.revokeObjectURL(url), 60000);
   }
   $('#download-review').addEventListener('click', () => {
-    const { errors, review } = gather();
+    const { errors, review, shop } = gather();
     if (errors.length) { res.textContent = 'Make the JSON again after fixing the form.'; return; }
-    download(new Blob([JSON.stringify(review, null, 2) + '\n'], { type: 'application/json' }), review.shopId + '.json');
+    download(new Blob([JSON.stringify({ shop, review }, null, 2) + '\n'], { type: 'application/json' }), review.shopId + '.json');
   });
 
   function gather() {
@@ -97,7 +98,7 @@
     const id = isNew() ? val('newId') : shopSel.value;
     if (!id) errors.push('Choose a shop, or add a new one.');
     else if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(id)) errors.push('Shop id must be lowercase letters, numbers and hyphens.');
-    let shop = null;
+    let shop = isNew() ? null : JSON.parse(shopSel.selectedOptions[0].dataset.shop);
     if (isNew()) {
       if (!val('newName')) errors.push('New shop needs a name.');
       if (!val('newArea')) errors.push('New shop needs an area (town or neighbourhood, not an address).');
@@ -107,6 +108,7 @@
       if (site) shop.website = site;
       if (val('newBlurb')) shop.blurb = val('newBlurb');
     }
+    if (shop) shop.paymentSumUp = form.elements.paymentSumUp.checked;
     if (!val('date')) errors.push('Visit date is required.');
     const score = (n, label, required) => {
       const v = num(n, true);
@@ -130,13 +132,13 @@
     if (!review.notes) errors.push('Overall notes are required.');
     if (attachedPhotos.length) review.photos = attachedPhotos.map(p => ({
       file: p.blob ? 'data/photos/' + id + '/' + p.name : p.file,
-      alt: p.alt.trim(), caption: p.caption.trim()
+      alt: p.alt.trim(), caption: p.caption.trim(), ...(p.data ? { data: p.data } : {})
     }));
     for (const p of review.photos || []) {
       if (!p.alt) errors.push('Every photo needs an image description.');
       if (!p.file.startsWith('data/photos/' + id + '/') || !/^data\/photos\/[a-z0-9-]+\/[a-z0-9][a-z0-9-]*\.(jpg|jpeg|png|webp|avif)$/.test(p.file)) errors.push('Imported photo has an invalid path or belongs to another shop.');
     }
-    const all = JSON.stringify([shop, review].filter(Boolean));
+    const all = JSON.stringify([shop, {...review, photos: review.photos?.map(({data, ...p}) => p)}].filter(Boolean));
     if (PHONE.test(all.replace(/\d{4}-\d{2}-\d{2}/g, ''))) errors.push('Something looks like a phone number. Never publish phone numbers or street addresses.');
     return { errors, shop, review };
   }
@@ -157,14 +159,7 @@
     outReview.textContent = JSON.stringify(review, null, 2);
     $('#file-hint').textContent = `Save the review as data/reviews/${review.shopId}.json` + (shop ? ' and add the shop entry to data/shops.json.' : '.');
     res.textContent = 'Done. Copy and paste into the repo; nothing has been sent anywhere.';
-    const downloads = $('#photo-downloads'); downloads.replaceChildren();
-    attachedPhotos.filter(p => p.blob).forEach(p => {
-      const b = document.createElement('button'); b.type = 'button'; b.textContent = 'Download ' + p.name;
-      b.addEventListener('click', () => download(p.blob, p.name)); downloads.append(b);
-    });
-    if (review.photos?.length) {
-      const hint = document.createElement('p'); hint.textContent = 'Save downloaded photos in data/photos/' + review.shopId + '/ alongside the review JSON. Imported existing photos stay in the repo; they do not need downloading again.'; downloads.append(hint);
-    }
+    $('#file-hint').textContent = 'Download one JSON containing the shop, review and cleaned photos. Send it to Kat to publish.';
     $('#outputs').hidden = false;
     $('#outputs').scrollIntoView({ block: 'nearest' });
   });
@@ -182,7 +177,7 @@
   $('#import-run').addEventListener('click', () => {
     const st = $('#import-status');
     let r;
-    try { r = JSON.parse($('#import-json').value); } catch { st.textContent = 'That is not valid JSON.'; return; }
+    try { r = JSON.parse($('#import-json').value); if (r.review) { const bundle = r; r = bundle.review; form.elements.paymentSumUp.checked = bundle.shop?.paymentSumUp === true; } } catch { st.textContent = 'That is not valid JSON.'; return; }
     if (!r || typeof r !== 'object' || !r.coffee || !r.visit) { st.textContent = 'That does not look like a myshop review.'; return; }
     const known = [...shopSel.options].some((o) => o.value === r.shopId);
     if (known) shopSel.value = r.shopId; else { shopSel.value = '__new'; form.elements.newId.value = r.shopId || ''; idTouched = true; }
@@ -193,7 +188,7 @@
     LINES.forEach((l) => { const x = r.coffee[l] || {}; slider(`${l}.quantity`)._set(x.quantity); slider(`${l}.quality`)._set(x.quality); set(l + '.notes', x.notes); });
     PILLARS.forEach((p) => { set(p + '.score', r[p]?.score); set(p + '.notes', r[p]?.notes); });
     set('flavour', r.flavour); set('overall', r.overall); set('notes', r.notes);
-    attachedPhotos = Array.isArray(r.photos) ? r.photos.map(p => ({ file: String(p.file || ''), name: String(p.file || '').split('/').at(-1), alt: String(p.alt || ''), caption: String(p.caption || '') })) : [];
+    attachedPhotos = Array.isArray(r.photos) ? r.photos.map(p => ({ data: p.data, file: String(p.file || ''), name: String(p.file || '').split('/').at(-1), alt: String(p.alt || ''), caption: String(p.caption || '') })) : [];
     renderPhotoFields(); $('#outputs').hidden = true;
     st.textContent = 'Imported. Check each field, then make the JSON.';
   });

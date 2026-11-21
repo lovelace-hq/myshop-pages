@@ -7,6 +7,7 @@ import { ROOT, loadData, readJson } from './validate.mjs';
 
 const CFG = readJson('site-config.json');
 const ORIGIN = (process.env.SITE_ORIGIN || CFG.origin).replace(/\/$/, '');
+const SUMUP_REFERRAL = 'https://l.get.sumup.com/CXe5/friends'; // One configurable referral URL; empty disables links.
 const SISTER = 'https://mypod.pages.dev';
 const EMAIL = 'myshop@lovelace.yv3.uk';
 const DIST = path.join(ROOT, 'dist');
@@ -69,7 +70,7 @@ function page({ title, desc, path: p, body, current, noindex, ld = [], mainClass
 <a class="sister" href="${SISTER}" rel="noopener"><img src="/art/mypod-capsule-192.png" width="56" height="56" alt=""><span><small>Sister site</small><strong><span>my</span>pod</strong></span></a></header>
 <div class="roll"><div class="slot" aria-hidden="true"></div>
 <main id="main" class="receipt ${mainClass}">${body}</main>
-<footer><div class="links"><a href="${SISTER}" rel="noopener">Sister site: mypod</a><a href="/method/">Method</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/contact/">Contact</a><a href="/write/">Writer</a><a href="/feed.xml">Feed</a></div><p>Made by <a href="https://lovelace.yv3.uk">Kat Lovelace</a>. Honest notes, one score.</p><p class="fine">No cookies, no popups, no tracking.</p></footer></div></div>
+<footer><div class="links"><a href="${SISTER}" rel="noopener">Sister site: mypod</a><a href="/method/">Method</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/contact/">Contact</a><a href="/write/">Writer</a><a href="/feed.xml">Feed</a></div><p>Made by <a href="https://lovelace.yv3.uk">Kat Lovelace</a>. Honest notes, one score.</p><p class="fine">Referral disclosure: SumUp links marked referral may reward us when you qualify. They do not affect review scores. No SumUp partnership or endorsement is implied.</p><p class="fine">No cookies, no popups, no tracking.</p></footer></div></div>
 </body></html>
 `;
 }
@@ -122,6 +123,10 @@ function waitingList() {
   return `<h2>On the list</h2><ul class="shoplist">${waiting.map((s) => `<li><img src="${dotFile(toneFor(s.id))}" width="28" height="28" alt=""><span>${photoMap.get(s.id)?.length ? `<a href="/photos/${s.id}/">${esc(s.name)}</a>` : esc(s.name)} <span class="ghost">· ${esc(s.area)}</span></span><span class="st">${photoMap.get(s.id)?.length ? 'photos · not rated' : 'not visited yet'}</span></li>`).join('')}</ul>`;
 }
 
+function sumup(s) {
+  if (!s.paymentSumUp) return '';
+  return '<aside class="sumup"><span class="sumup-badge">Takes SumUp</span><p class="note">Pay with your personal SumUp Mastercard at participating SumUp businesses for 5% cashback, while the shop pays 0% transaction fees on that eligible in-person payment. Cashback is capped at £10 per month; check your app for current eligibility and limits. Other payment methods still carry standard merchant fees. <a href="https://www.sumup.com/en-gb/zero-fees-cashback/" rel="noopener">How it works</a>.</p>' + (SUMUP_REFERRAL ? '<p class="note">Referral offer: eligible new customers can get £10 using code <strong>JACK6191</strong> after verification and three qualifying in-store card payments totalling at least £10 within 30 days. We also receive £10. <a href="' + esc(SUMUP_REFERRAL) + '" rel="sponsored noopener">Join SumUp (referral link)</a>. <a href="https://www.sumup.com/en-gb/personal/legal/refer-a-friend/" rel="noopener">Terms and eligibility</a> apply. Check the current offer before joining.</p>' : '') + '</aside>';
+}
 function gallery(r) {
   const photos = photoMap.get(r.shopId) || [];
   if (!photos.length) return '';
@@ -147,7 +152,7 @@ function reviewPage(r) {
   }).join('');
   const body = `<p class="eyebrow"><a href="/">&larr; All visits</a></p>
 <h1>${esc(s.name)}</h1><ul class="meta">${meta}</ul>${s.website ? `<p class="body"><a href="${esc(s.website)}" rel="noopener">${esc(s.website.replace(/^https:\/\//, '').replace(/\/$/, ''))}</a></p>` : ''}
-${gallery(r)}<hr class="rule"><ul class="items">${PILLARS.map(([k, l], i) => item(l, r[k].score, r[k].notes, i)).join('')}</ul>
+${sumup(s)}${gallery(r)}<hr class="rule"><ul class="items">${PILLARS.map(([k, l], i) => item(l, r[k].score, r[k].notes, i)).join('')}</ul>
 <details class="cup" open><summary>The cup, line by line</summary><p class="note">Tasting-sheet lines from -100 (left end) to 100 (right end), 0 at the centre tick. Blank means not recorded.</p><ul class="items">${sheet}</ul></details>
 ${r.flavour ? `<h2>Flavour</h2><p class="body">${esc(r.flavour)}</p>` : ''}
 <div class="total"><span class="name">Total</span><span class="dots" aria-hidden="true"></span><span class="big" aria-label="Overall ${r.overall} out of 100">${r.overall}<small>/100</small></span></div>
@@ -185,27 +190,27 @@ function writerPage() {
   const sl = (key, label) => `<div class="slid untouched" data-key="${key}"><span aria-hidden="true">${label}</span><input type="range" min="-100" max="100" step="1" value="0" aria-label="${key.replace('.', ' ')}"><output aria-live="off">blank</output><button type="button" aria-label="Clear ${key.replace('.', ' ')}">Clear</button></div>`;
   const inp = (n, l, extra = '') => `<label>${l}<input name="${n}" ${extra}></label>`;
   const ta = (n, l, rows = 2) => `<label>${l}<textarea name="${n}" rows="${rows}"></textarea></label>`;
-  const options = shops.map((s) => `<option value="${esc(s.id)}">${esc(s.name)} · ${esc(s.area)}</option>`).join('');
+  const options = shops.map((s) => `<option data-shop="${esc(JSON.stringify(s))}" value="${esc(s.id)}">${esc(s.name)} · ${esc(s.area)}</option>`).join('');
   const body = `<p class="eyebrow"><span class="priv">Private writer</span></p><h1>Score a visit.</h1>
 <p class="body">This form works only in your browser: nothing is sent or saved. Fill it in, make the JSON, and paste it into the repo (see <code>DATA.md</code>). Never include a street address or phone number.</p>
 <noscript><p class="err">JavaScript is needed for the writer. You can edit the JSON files directly instead.</p></noscript>
 <div class="writer"><form id="writer" novalidate>
 <fieldset><legend>Import (optional)</legend><label for="import-json">Paste a review JSON to prefill every field</label><textarea id="import-json" rows="4" spellcheck="false" autocomplete="off"></textarea><div><button type="button" id="import-run">Import</button></div><div id="import-status" class="status" role="status"></div></fieldset>
 <fieldset><legend>The shop</legend><label>Shop<select name="shop">${options}<option value="__new"${shops.length ? '' : ' selected'}>New shop&hellip;</option></select></label>
-<div id="newshop" class="two" hidden>${inp('newName', 'Shop name', 'autocomplete="off"')}${inp('newId', 'Shop id (url slug)', 'autocomplete="off"')}${inp('newArea', 'Area (town or neighbourhood only)', 'autocomplete="off"')}${inp('newWebsite', 'Website (https://, optional)', 'type="url" autocomplete="off"')}</div>
+<label><input type="checkbox" name="paymentSumUp"> Takes SumUp</label><div id="newshop" class="two" hidden>${inp('newName', 'Shop name', 'autocomplete="off"')}${inp('newId', 'Shop id (url slug)', 'autocomplete="off"')}${inp('newArea', 'Area (town or neighbourhood only)', 'autocomplete="off"')}${inp('newWebsite', 'Website (https://, optional)', 'type="url" autocomplete="off"')}</div>
 </fieldset>
 <fieldset><legend>The visit</legend><div class="two"><label>Date<input name="date" type="date"></label>${inp('drink', 'Drink')}${inp('price', 'Price paid, £', 'type="number" min="0" step="0.01" inputmode="decimal"')}${inp('when', 'When (free text)')}<label>Sat in or takeaway<select name="seat"><option value="">Not recorded</option><option value="in">Sat in</option><option value="takeaway">Takeaway</option></select></label>${inp('milk', 'Milk')}</div></fieldset>
 <fieldset><legend>Coffee</legend>${inp('coffee.score', 'Coffee score, 0 to 100', 'type="number" min="0" max="100" step="1" inputmode="numeric"')}${ta('coffee.notes', 'Coffee notes')}
 ${LINES.map(([k, l]) => `<fieldset><legend>${l}</legend>${sl(k + '.quantity', 'Quantity')}${sl(k + '.quality', 'Quality')}${ta(k + '.notes', l + ' notes', 1)}</fieldset>`).join('')}
 ${ta('flavour', 'Flavour')}</fieldset>
 ${[['space', 'Space'], ['service', 'Service'], ['value', 'Value']].map(([k, l]) => `<fieldset><legend>${l}</legend>${inp(k + '.score', l + ' score, 0 to 100', 'type="number" min="0" max="100" step="1" inputmode="numeric"')}${ta(k + '.notes', l + ' notes')}</fieldset>`).join('')}
-<fieldset><legend>Photos (optional)</legend><p class="note">JPEG, PNG, WebP or AVIF. Up to 12, 25 MB each. Photos stay on your device. Add an image description, then download each cleaned photo alongside the JSON. Only include photos you have permission to publish; check faces and visible personal details.</p><label>Attach photos<input id="photo-files" type="file" accept="image/jpeg,image/png,image/webp,image/avif" multiple></label><div id="photo-fields"></div><p id="photo-status" role="status"></p></fieldset>
+<fieldset><legend>Photos (optional)</legend><p class="note">JPEG, PNG, WebP or AVIF. Up to 12, 25 MB each. Photos stay on your device. Add an image description, then download one JSON with the cleaned photos embedded. Only include photos you have permission to publish; check faces and visible personal details.</p><label>Attach photos<input id="photo-files" type="file" accept="image/jpeg,image/png,image/webp,image/avif" multiple></label><div id="photo-fields"></div><p id="photo-status" role="status"></p></fieldset>
 <fieldset><legend>The total</legend>${inp('overall', 'Overall enjoyment, 0 to 100 (required)', 'type="number" min="0" max="100" step="1" inputmode="numeric"')}${ta('notes', 'Overall notes (required)', 4)}</fieldset>
 <ul id="errors" class="err" role="alert" tabindex="-1" hidden></ul>
 <div><button class="primary" type="submit">Make the JSON</button></div><p id="result" class="status" role="status"></p>
 <div id="outputs" hidden><p id="file-hint" class="body"></p>
 <div id="shop-out" hidden><h3>Shop entry for data/shops.json</h3><pre id="out-shop" class="out"></pre><button type="button" data-copy="out-shop">Copy shop entry</button></div>
-<h3>Review JSON</h3><pre id="out-review" class="out"></pre><button type="button" data-copy="out-review">Copy review JSON</button><button type="button" id="download-review">Download review JSON</button><div id="photo-downloads"></div></div>
+<h3>Review JSON</h3><pre id="out-review" class="out"></pre><button type="button" data-copy="out-review">Copy review JSON</button><button type="button" id="download-review">Download review JSON</button></div>
 </form></div><script src="/assets/${wName}" defer></script>`;
   return page({ title: 'Writer · myshop', desc: 'Private local form for scoring a coffee shop visit.', path: '/write/', current: '', noindex: true, body, mainClass: 'writer-page' });
 }
