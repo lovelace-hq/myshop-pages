@@ -34,8 +34,66 @@
   form.elements.newName.addEventListener('input', () => { if (!idTouched) form.elements.newId.value = slug(val('newName')); });
   syncNew();
 
+  let attachedPhotos = [], photosBusy = false;
+  const photoFields = $('#photo-fields'), photoStatus = $('#photo-status');
+  function renderPhotoFields() {
+    photoFields.replaceChildren();
+    attachedPhotos.forEach((p, i) => {
+      const box = document.createElement('div'); box.className = 'photo-editor';
+      const name = document.createElement('p'); name.textContent = p.name;
+      box.append(name);
+      for (const [key, title] of [['alt', 'Image description (required)'], ['caption', 'Caption (optional)']]) {
+        const label = document.createElement('label'); label.textContent = title;
+        const input = document.createElement('input'); input.value = p[key] || '';
+        input.addEventListener('input', () => { p[key] = input.value; });
+        label.append(input); box.append(label);
+      }
+      const remove = document.createElement('button'); remove.type = 'button'; remove.textContent = 'Remove photo ' + (i + 1);
+      remove.addEventListener('click', () => { attachedPhotos.splice(i, 1); renderPhotoFields(); $('#outputs').hidden = true; });
+      box.append(remove); photoFields.append(box);
+    });
+  }
+  $('#photo-files').addEventListener('change', async (event) => {
+    photosBusy = true; $('#outputs').hidden = true;
+    photoStatus.textContent = 'Cleaning photos locally…';
+    try {
+      const files = [...event.target.files];
+      if (attachedPhotos.length + files.length > 12) throw new Error('Choose no more than 12 photos in total.');
+      const added = [];
+      for (const file of files) {
+        if (!['image/jpeg', 'image/png', 'image/webp', 'image/avif'].includes(file.type) || file.size > 25 * 1024 * 1024) throw new Error('Use JPEG, PNG, WebP or AVIF files up to 25 MB.');
+        const image = await createImageBitmap(file);
+        try {
+          if (image.width * image.height > 60000000) throw new Error('Photo is too large (maximum 60 megapixels).');
+          const scale = Math.min(1, 1600 / image.width, 1600 / image.height);
+          const canvas = document.createElement('canvas'); canvas.width = Math.max(1, Math.round(image.width * scale)); canvas.height = Math.max(1, Math.round(image.height * scale));
+          const ctx = canvas.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+          const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', .9));
+          if (!blob) throw new Error('Could not convert photo. Try exporting it as JPEG.');
+          const stem = slug(file.name.replace(/\.[^.]+$/, '')).slice(0, 48) || 'photo';
+          let name = stem + '.jpg', n = 2;
+          while ([...attachedPhotos, ...added].some(p => p.name === name)) name = stem + '-' + n++ + '.jpg';
+          added.push({ name, blob, alt: '', caption: '' });
+        } finally { image.close(); }
+      }
+      attachedPhotos.push(...added); renderPhotoFields();
+      photoStatus.textContent = 'Photos cleaned. Add descriptions below. Nothing has been uploaded.';
+    } catch (err) { photoStatus.textContent = err.message || 'Unable to read photo. Try JPEG.'; }
+    finally { photosBusy = false; event.target.value = ''; }
+  });
+  function download(blob, name) {
+    const url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = name; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  }
+  $('#download-review').addEventListener('click', () => {
+    const { errors, review } = gather();
+    if (errors.length) { res.textContent = 'Make the JSON again after fixing the form.'; return; }
+    download(new Blob([JSON.stringify(review, null, 2) + '\n'], { type: 'application/json' }), review.shopId + '.json');
+  });
+
   function gather() {
     const errors = [];
+    if (photosBusy) errors.push('Wait for photo cleaning to finish.');
     const id = isNew() ? val('newId') : shopSel.value;
     if (!id) errors.push('Choose a shop, or add a new one.');
     else if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(id)) errors.push('Shop id must be lowercase letters, numbers and hyphens.');
@@ -70,6 +128,14 @@
     review.overall = score('overall', 'Overall', true);
     review.notes = val('notes');
     if (!review.notes) errors.push('Overall notes are required.');
+    if (attachedPhotos.length) review.photos = attachedPhotos.map(p => ({
+      file: p.blob ? 'data/photos/' + id + '/' + p.name : p.file,
+      alt: p.alt.trim(), caption: p.caption.trim()
+    }));
+    for (const p of review.photos || []) {
+      if (!p.alt) errors.push('Every photo needs an image description.');
+      if (!p.file.startsWith('data/photos/' + id + '/') || !/^data\/photos\/[a-z0-9-]+\/[a-z0-9][a-z0-9-]*\.(jpg|jpeg|png|webp|avif)$/.test(p.file)) errors.push('Imported photo has an invalid path or belongs to another shop.');
+    }
     const all = JSON.stringify([shop, review].filter(Boolean));
     if (PHONE.test(all.replace(/\d{4}-\d{2}-\d{2}/g, ''))) errors.push('Something looks like a phone number. Never publish phone numbers or street addresses.');
     return { errors, shop, review };
@@ -91,6 +157,14 @@
     outReview.textContent = JSON.stringify(review, null, 2);
     $('#file-hint').textContent = `Save the review as data/reviews/${review.shopId}.json` + (shop ? ' and add the shop entry to data/shops.json.' : '.');
     res.textContent = 'Done. Copy and paste into the repo; nothing has been sent anywhere.';
+    const downloads = $('#photo-downloads'); downloads.replaceChildren();
+    attachedPhotos.filter(p => p.blob).forEach(p => {
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = 'Download ' + p.name;
+      b.addEventListener('click', () => download(p.blob, p.name)); downloads.append(b);
+    });
+    if (review.photos?.length) {
+      const hint = document.createElement('p'); hint.textContent = 'Save downloaded photos in data/photos/' + review.shopId + '/ alongside the review JSON. Imported existing photos stay in the repo; they do not need downloading again.'; downloads.append(hint);
+    }
     $('#outputs').hidden = false;
     $('#outputs').scrollIntoView({ block: 'nearest' });
   });
@@ -119,6 +193,8 @@
     LINES.forEach((l) => { const x = r.coffee[l] || {}; slider(`${l}.quantity`)._set(x.quantity); slider(`${l}.quality`)._set(x.quality); set(l + '.notes', x.notes); });
     PILLARS.forEach((p) => { set(p + '.score', r[p]?.score); set(p + '.notes', r[p]?.notes); });
     set('flavour', r.flavour); set('overall', r.overall); set('notes', r.notes);
+    attachedPhotos = Array.isArray(r.photos) ? r.photos.map(p => ({ file: String(p.file || ''), name: String(p.file || '').split('/').at(-1), alt: String(p.alt || ''), caption: String(p.caption || '') })) : [];
+    renderPhotoFields(); $('#outputs').hidden = true;
     st.textContent = 'Imported. Check each field, then make the JSON.';
   });
 })();

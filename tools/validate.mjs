@@ -31,6 +31,7 @@ export function validate(value, schema, root = schema, at = '$') {
     if (schema.minimum != null && value < schema.minimum) errs.push(`${at}: below ${schema.minimum}`);
     if (schema.maximum != null && value > schema.maximum) errs.push(`${at}: above ${schema.maximum}`);
   }
+  if (Array.isArray(value) && schema.maxItems != null && value.length > schema.maxItems) errs.push(at + ': too many items');
   if (Array.isArray(value) && schema.items) value.forEach((v, i) => errs.push(...validate(v, schema.items, root, `${at}[${i}]`)));
   if (value && typeof value === 'object' && !Array.isArray(value)) {
     for (const k of schema.required || []) if (!(k in value)) errs.push(`${at}.${k}: required`);
@@ -51,6 +52,7 @@ export function checkReview(r, shopIds) {
   if (r.reviewed && !r.date) errs.push('reviewed reviews need a date');
   if (r.reviewed && r.overall === null) errs.push('reviewed reviews need an overall score');
   if (r.date && Number.isNaN(Date.parse(r.date + 'T00:00:00Z'))) errs.push(`date ${r.date} is not a real date`);
+  for (const p of r.photos || []) if (!p.file.startsWith('data/photos/' + r.shopId + '/')) errs.push('Photo path must belong to this shop');
   errs.push(...privacy(r, `review ${r.shopId}`));
   return errs;
 }

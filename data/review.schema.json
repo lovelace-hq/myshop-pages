@@ -3,61 +3,221 @@
   "title": "myshop review (one file per shop: data/reviews/<shopId>.json)",
   "type": "object",
   "additionalProperties": false,
-  "required": ["shopId", "reviewed", "date", "visit", "coffee", "space", "service", "value", "flavour", "overall", "notes"],
+  "required": [
+    "shopId",
+    "reviewed",
+    "date",
+    "visit",
+    "coffee",
+    "space",
+    "service",
+    "value",
+    "flavour",
+    "overall",
+    "notes"
+  ],
   "properties": {
-    "shopId": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "description": "Must match an id in data/shops.json and the file name." },
-    "reviewed": { "type": "boolean", "description": "false = placeholder, not published as a review." },
-    "date": { "type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$", "description": "Visit date, YYYY-MM-DD. Required when reviewed is true." },
+    "shopId": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "Must match an id in data/shops.json and the file name."
+    },
+    "reviewed": {
+      "type": "boolean",
+      "description": "false = placeholder, not published as a review."
+    },
+    "date": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "description": "Visit date, YYYY-MM-DD. Required when reviewed is true."
+    },
     "visit": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["drink", "priceGbp", "when", "seat", "milk"],
+      "required": [
+        "drink",
+        "priceGbp",
+        "when",
+        "seat",
+        "milk"
+      ],
       "properties": {
-        "drink": { "type": ["string", "null"], "description": "What was ordered, e.g. flat white." },
-        "priceGbp": { "type": ["number", "null"], "minimum": 0, "description": "Price paid in pounds, e.g. 3.6. Null = not recorded." },
-        "when": { "type": ["string", "null"], "description": "Free text, e.g. Saturday 10am." },
-        "seat": { "enum": ["in", "takeaway", null] },
-        "milk": { "type": ["string", "null"] }
+        "drink": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "What was ordered, e.g. flat white."
+        },
+        "priceGbp": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "description": "Price paid in pounds, e.g. 3.6. Null = not recorded."
+        },
+        "when": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Free text, e.g. Saturday 10am."
+        },
+        "seat": {
+          "enum": [
+            "in",
+            "takeaway",
+            null
+          ]
+        },
+        "milk": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
       }
     },
     "coffee": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["score", "notes", "aroma", "acidity", "sweetness", "body", "finish"],
+      "required": [
+        "score",
+        "notes",
+        "aroma",
+        "acidity",
+        "sweetness",
+        "body",
+        "finish"
+      ],
       "properties": {
-        "score": { "$ref": "#/$defs/score" },
-        "notes": { "type": "string" },
-        "aroma": { "$ref": "#/$defs/line" },
-        "acidity": { "$ref": "#/$defs/line" },
-        "sweetness": { "$ref": "#/$defs/line" },
-        "body": { "$ref": "#/$defs/line" },
-        "finish": { "$ref": "#/$defs/line" }
+        "score": {
+          "$ref": "#/$defs/score"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "aroma": {
+          "$ref": "#/$defs/line"
+        },
+        "acidity": {
+          "$ref": "#/$defs/line"
+        },
+        "sweetness": {
+          "$ref": "#/$defs/line"
+        },
+        "body": {
+          "$ref": "#/$defs/line"
+        },
+        "finish": {
+          "$ref": "#/$defs/line"
+        }
       }
     },
-    "space": { "$ref": "#/$defs/pillar" },
-    "service": { "$ref": "#/$defs/pillar" },
-    "value": { "$ref": "#/$defs/pillar" },
-    "flavour": { "type": "string" },
-    "overall": { "$ref": "#/$defs/score", "description": "J's own overall enjoyment out of 100. Not an average of the pillars." },
-    "notes": { "type": "string", "description": "Honest overall notes. Never include a street address or phone number." }
+    "space": {
+      "$ref": "#/$defs/pillar"
+    },
+    "service": {
+      "$ref": "#/$defs/pillar"
+    },
+    "value": {
+      "$ref": "#/$defs/pillar"
+    },
+    "flavour": {
+      "type": "string"
+    },
+    "overall": {
+      "$ref": "#/$defs/score",
+      "description": "J's own overall enjoyment out of 100. Not an average of the pillars."
+    },
+    "notes": {
+      "type": "string",
+      "description": "Honest overall notes. Never include a street address or phone number."
+    },
+    "photos": {
+      "type": "array",
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "file",
+          "alt",
+          "caption"
+        ],
+        "properties": {
+          "file": {
+            "type": "string",
+            "pattern": "^data/photos/[a-z0-9]+(-[a-z0-9]+)*/[a-z0-9][a-z0-9-]*\\.(jpg|jpeg|png|webp|avif)$"
+          },
+          "alt": {
+            "type": "string",
+            "minLength": 1
+          },
+          "caption": {
+            "type": "string"
+          }
+        }
+      }
+    }
   },
   "$defs": {
-    "score": { "type": ["integer", "null"], "minimum": 0, "maximum": 100, "description": "Whole number 0-100. Null = not recorded." },
-    "position": { "type": ["number", "null"], "minimum": -100, "maximum": 100, "description": "Line position, -100 (left end) to 100 (right end), 0 centre. Null = not recorded." },
+    "score": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Whole number 0-100. Null = not recorded."
+    },
+    "position": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": -100,
+      "maximum": 100,
+      "description": "Line position, -100 (left end) to 100 (right end), 0 centre. Null = not recorded."
+    },
     "pillar": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["score", "notes"],
-      "properties": { "score": { "$ref": "#/$defs/score" }, "notes": { "type": "string" } }
+      "required": [
+        "score",
+        "notes"
+      ],
+      "properties": {
+        "score": {
+          "$ref": "#/$defs/score"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
     },
     "line": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["quantity", "quality", "notes"],
+      "required": [
+        "quantity",
+        "quality",
+        "notes"
+      ],
       "properties": {
-        "quantity": { "$ref": "#/$defs/position" },
-        "quality": { "$ref": "#/$defs/position" },
-        "notes": { "type": "string" }
+        "quantity": {
+          "$ref": "#/$defs/position"
+        },
+        "quality": {
+          "$ref": "#/$defs/position"
+        },
+        "notes": {
+          "type": "string"
+        }
       }
     }
   }

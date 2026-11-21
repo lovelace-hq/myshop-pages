@@ -3,5 +3,10 @@
     "id": "mcdonalds-kendal",
     "name": "McDonald's",
     "area": "Stricklandgate, Kendal"
+  },
+  {
+    "id": "ramble-and-roast-coffee-bar",
+    "name": "Ramble & Roast Coffee Bar",
+    "area": "Mobile coffee bar \u00b7 railway platform"
   }
 ]
