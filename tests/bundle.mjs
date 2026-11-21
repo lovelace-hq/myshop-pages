@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
+import {execFileSync} from 'node:child_process';
+import sharp from 'sharp';
+import {ROOT,checkShops} from '../tools/validate.mjs';
+const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'myshop-bundle-'));
+try {
+for(const dir of ['tools','site','data','docs']) fs.cpSync(path.join(ROOT,dir),path.join(tmp,dir),{recursive:true});
+for(const file of ['package.json','site-config.json']) fs.copyFileSync(path.join(ROOT,file),path.join(tmp,file));
+fs.symlinkSync(path.join(ROOT,'node_modules'),path.join(tmp,'node_modules'),'dir');
+const shop={...JSON.parse(fs.readFileSync(path.join(tmp,'data/shops.json')))[0],paymentSumUp:true};
+const review=JSON.parse(fs.readFileSync(path.join(tmp,'data/reviews',shop.id+'.json')));
+const bytes=await sharp({create:{width:2000,height:1000,channels:3,background:'red'}}).jpeg().withMetadata().toBuffer();
+review.photos=[{file:'data/photos/'+shop.id+'/bundle-test.jpg',alt:'A test photo',caption:'Test',data:'data:image/jpeg;base64,'+bytes.toString('base64')}];
+const bundle=path.join(tmp,'bundle.json');
+fs.writeFileSync(bundle,JSON.stringify({shop,review}));
+execFileSync('node',['tools/import-review.mjs',bundle],{cwd:tmp});
+const saved=JSON.parse(fs.readFileSync(path.join(tmp,'data/reviews',shop.id+'.json')));
+assert.equal(saved.photos[0].data,undefined);
+const meta=await sharp(path.join(tmp,saved.photos[0].file)).metadata();assert.equal(meta.exif,undefined);assert.equal(meta.width,1600);
+execFileSync('node',['tools/build.mjs'],{cwd:tmp});
+const page=fs.readFileSync(path.join(tmp,'dist/review',shop.id,'index.html'),'utf8');
+assert.match(page,/5% cashback/);assert.match(page,/0% transaction fees/);assert.match(page,/JACK6191/);assert.match(page,/rel="sponsored noopener"/);
+assert.ok(checkShops([{...shop,paymentSumUp:'yes'}]).length);
+review.photos[0].file='data/photos/'+shop.id+'/../bad.jpg';fs.writeFileSync(bundle,JSON.stringify({shop,review}));
+assert.throws(()=>execFileSync('node',['tools/import-review.mjs',bundle],{cwd:tmp,stdio:'pipe'}));
+console.log('bundle ok: embedded import, metadata stripping, resize, unsafe-path rejection, SumUp badge/referral and schema');
+}finally{fs.rmSync(tmp,{recursive:true,force:true});}
