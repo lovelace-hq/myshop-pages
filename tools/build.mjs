@@ -7,6 +7,7 @@ import { ROOT, loadData, readJson } from './validate.mjs';
 
 const CFG = readJson('site-config.json');
 const ORIGIN = (process.env.SITE_ORIGIN || CFG.origin).replace(/\/$/, '');
+const SUMUP_BUSINESS_REFERRAL = 'https://join.sumup.com/DDr98oJS?share_id=toupdcQddr98ojs';
 const SUMUP_REFERRAL = 'https://l.get.sumup.com/CXe5/friends'; // One configurable referral URL; empty disables links.
 const SISTER = 'https://mypod.pages.dev';
 const EMAIL = 'myshop@lovelace.yv3.uk';
@@ -70,7 +71,7 @@ function page({ title, desc, path: p, body, current, noindex, ld = [], mainClass
 <a class="sister" href="${SISTER}" rel="noopener"><img src="/art/mypod-capsule-192.png" width="56" height="56" alt=""><span><small>Sister site</small><strong><span>my</span>pod</strong></span></a></header>
 <div class="roll"><div class="slot" aria-hidden="true"></div>
 <main id="main" class="receipt ${mainClass}">${body}</main>
-<footer><div class="links"><a href="${SISTER}" rel="noopener">Sister site: mypod</a><a href="/method/">Method</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/contact/">Contact</a><a href="/write/">Writer</a><a href="/feed.xml">Feed</a></div><p>Made by <a href="https://lovelace.yv3.uk">Kat Lovelace</a>. Honest notes, one score.</p><p class="fine">Referral disclosure: SumUp links marked referral may reward us when you qualify. They do not affect review scores. No SumUp partnership or endorsement is implied.</p><p class="fine">No cookies, no popups, no tracking.</p></footer></div></div>
+<footer><div class="links"><a href="${SISTER}" rel="noopener">Sister site: mypod</a><a href="/method/">Method</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/contact/">Contact</a><a href="/write/">Writer</a><a href="/feed.xml">Feed</a></div><p>Made by <a href="https://lovelace.yv3.uk">Kat Lovelace</a>. Honest notes, one score.</p><p class="fine">Referral disclosure: SumUp personal-account and business-device links marked referral may reward us when you qualify. They do not affect review scores. No SumUp partnership or endorsement is implied.</p><p class="fine">No cookies, no popups, no tracking.</p></footer></div></div>
 </body></html>
 `;
 }
@@ -125,7 +126,7 @@ function waitingList() {
 
 function sumup(s) {
   if (!s.paymentSumUp) return '';
-  return '<aside class="sumup"><span class="sumup-badge">Takes SumUp</span><p class="note">Pay with your personal SumUp Mastercard at participating SumUp businesses for 5% cashback, while the shop pays 0% transaction fees on that eligible in-person payment. Cashback is capped at £10 per month; check your app for current eligibility and limits. Other payment methods still carry standard merchant fees. <a href="https://www.sumup.com/en-gb/zero-fees-cashback/" rel="noopener">How it works</a>.</p>' + (SUMUP_REFERRAL ? '<p class="note">Referral offer: eligible new customers can get £10 using code <strong>JACK6191</strong> after verification and three qualifying in-store card payments totalling at least £10 within 30 days. We also receive £10. <a href="' + esc(SUMUP_REFERRAL) + '" rel="sponsored noopener">Join SumUp (referral link)</a>. <a href="https://www.sumup.com/en-gb/personal/legal/refer-a-friend/" rel="noopener">Terms and eligibility</a> apply. Check the current offer before joining.</p>' : '') + '</aside>';
+  return '<aside class="sumup"><span class="sumup-badge">Takes SumUp</span><p class="note">Pay with your personal SumUp Mastercard at participating SumUp businesses for 5% cashback, while the shop pays 0% transaction fees on that eligible in-person payment. Cashback is capped at £10 per month; check your app for current eligibility and limits. Other payment methods still carry standard merchant fees. <a href="https://www.sumup.com/en-gb/zero-fees-cashback/" rel="noopener">How it works</a>.</p>' + (SUMUP_REFERRAL ? '<p class="note">Referral offer: eligible new customers can get £10 using code <strong>JACK6191</strong> after verification and three qualifying in-store card payments totalling at least £10 within 30 days. We also receive £10. <a href="' + esc(SUMUP_REFERRAL) + '" rel="sponsored noopener">Join SumUp (referral link)</a>. <a href="https://www.sumup.com/en-gb/personal/legal/refer-a-friend/" rel="noopener">Terms and eligibility</a> apply. Check the current offer before joining.</p>' : '') + (SUMUP_BUSINESS_REFERRAL ? '<p class="fine sumup-business">Run a café? <a href="' + esc(SUMUP_BUSINESS_REFERRAL) + '" rel="sponsored noopener">Get up to £50 off your first SumUp payment device (business referral)</a>. Selected devices and eligibility apply; check the current offer. We may receive a reward.</p>' : '') + '</aside>';
 }
 function gallery(r) {
   const photos = photoMap.get(r.shopId) || [];

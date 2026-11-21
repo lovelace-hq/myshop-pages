@@ -22,7 +22,7 @@ assert.equal(saved.photos[0].data,undefined);
 const meta=await sharp(path.join(tmp,saved.photos[0].file)).metadata();assert.equal(meta.exif,undefined);assert.equal(meta.width,1600);
 execFileSync('node',['tools/build.mjs'],{cwd:tmp});
 const page=fs.readFileSync(path.join(tmp,'dist/review',shop.id,'index.html'),'utf8');
-assert.match(page,/5% cashback/);assert.match(page,/0% transaction fees/);assert.match(page,/JACK6191/);assert.match(page,/rel="sponsored noopener"/);
+assert.match(page,/5% cashback/);assert.match(page,/up to £50 off your first SumUp payment device/);assert.match(page,/business referral/);assert.ok(page.indexOf('JACK6191') < page.indexOf('Run a café?'));assert.match(page,/0% transaction fees/);assert.match(page,/JACK6191/);assert.match(page,/rel="sponsored noopener"/);
 assert.ok(checkShops([{...shop,paymentSumUp:'yes'}]).length);
 review.photos[0].file='data/photos/'+shop.id+'/../bad.jpg';fs.writeFileSync(bundle,JSON.stringify({shop,review}));
 assert.throws(()=>execFileSync('node',['tools/import-review.mjs',bundle],{cwd:tmp,stdio:'pipe'}));
