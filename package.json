@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "node tools/build.mjs",
-    "test": "node tools/build.mjs && node tests/schema.mjs && node tests/build.mjs && node tests/headers.mjs && node tests/rules.mjs && node tests/photos.mjs && node tests/bundle.mjs"
+    "test": "node tools/build.mjs && node tests/schema.mjs && node tests/build.mjs && node tests/headers.mjs && node tests/rules.mjs && node tests/photos.mjs && node tests/bundle.mjs && node tests/domain-migration.mjs"
   },
   "engines": {
     "node": ">=20.9.0"

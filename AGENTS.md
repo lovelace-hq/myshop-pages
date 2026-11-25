@@ -6,7 +6,7 @@
 - To ship a change: open a PR, get CI green, merge to `master`, and let the workflow deploy. To redeploy without a change, re-run the workflow (`workflow_dispatch`) on `master`.
 - **Bootstrap/outage exception (owner-authorised):** if GitHub Actions is down, the owner has said a manual `wrangler pages deploy dist --project-name=<project> --branch=master` from a clean checkout of `master` at the tagged commit is acceptable. Afterwards re-run the workflow when Actions is back, so live and git agree again.
 - `.github/workflows/drift.yml` builds `master` every day and diffs the output against the live site (ignoring Cloudflare's injected analytics script). If live differs it opens a `deploy-drift` issue. Fix drift by merging to `master` or re-running the deploy workflow.
-- Deploys are off until the repo variable `CF_PAGES_PROJECT` is set to the confirmed Cloudflare Pages project name (currently `mycoffeeshop`, serving https://mycoffeeshop.pages.dev; `myshop.pages.dev` belongs to someone else, so the brand on the site is "myshop" but the host is mycoffeeshop).
+- Deploys are off until the repo variable `CF_PAGES_PROJECT` is set to the confirmed Cloudflare Pages project name (currently `mycoffeeshop`, serving https://mycoffeeshop.yv3.uk; `myshop.pages.dev` belongs to someone else, so the brand on the site is "myshop" but the host is mycoffeeshop).
 - Cloudflare credentials belong to GitHub Actions secrets (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`), never to files in this repo.
 
 ## Rules shared with mypod (enforced by `npm test`)

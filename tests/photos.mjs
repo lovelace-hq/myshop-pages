@@ -41,10 +41,10 @@ try {
   assert.match(html, /loading="lazy"/); assert.match(html, /width="1600" height="900"/);
   assert.ok(html.includes('"@type":"Review"'), 'owner supplied full review');
   assert.ok(!html.includes('undefined')); assert.match(html, /"ratingValue":95/);
-  assert.match(html, /rel="canonical" href="https:\/\/mycoffeeshop.pages.dev\/review\/ramble-and-roast-oxn\/"/);
+  assert.match(html, /rel="canonical" href="https:\/\/mycoffeeshop.yv3.uk\/review\/ramble-and-roast-oxn\/"/);
   assert.equal(JSON.parse(fs.readFileSync(ROOT+'/dist/api/photos.json'))[0].photos.length,2);
   assert.ok(!fs.existsSync(ROOT+'/dist/data/photos'), 'no originals exposed');
-  assert.match(fs.readFileSync(ROOT+'/dist/review/ramble-and-roast-oxn/index.md','utf8'), /https:\/\/mycoffeeshop.pages.dev\/photos\//);
+  assert.match(fs.readFileSync(ROOT+'/dist/review/ramble-and-roast-oxn/index.md','utf8'), /https:\/\/mycoffeeshop.yv3.uk\/photos\//);
 } finally { fs.rmSync(tmp, { recursive:true, force:true }); }
 console.log('photos ok: EXIF/GPS stripped, variants, dimensions, deterministic, safe paths, limits, gallery/API/markdown');
 

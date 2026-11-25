@@ -9,7 +9,7 @@ const CFG = readJson('site-config.json');
 const ORIGIN = (process.env.SITE_ORIGIN || CFG.origin).replace(/\/$/, '');
 const SUMUP_BUSINESS_REFERRAL = 'https://join.sumup.com/DDr98oJS?share_id=toupdcQddr98ojs';
 const SUMUP_REFERRAL = 'https://l.get.sumup.com/CXe5/friends'; // One configurable referral URL; empty disables links.
-const SISTER = 'https://mypod.pages.dev';
+const SISTER = 'https://mypod.yv3.uk';
 const EMAIL = 'myshop@lovelace.yv3.uk';
 const DIST = path.join(ROOT, 'dist');
 const esc = (x) => String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
