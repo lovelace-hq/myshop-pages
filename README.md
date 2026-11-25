@@ -1,6 +1,6 @@
 # myshop
 
-Coffee shop reviews. Sister site of [mypod](https://mypod.pages.dev) (coffee pods). Same tasting-sheet idea, a different cup: every visit prints like a till receipt, itemised as coffee, space, service and value, with one honest total.
+Coffee shop reviews. Sister site of [mypod](https://mypod.yv3.uk) (coffee pods). Same tasting-sheet idea, a different cup: every visit prints like a till receipt, itemised as coffee, space, service and value, with one honest total.
 
 - Data: `data/shops.json` and `data/reviews/<shopId>.json`. Format and how to add a review: [DATA.md](DATA.md).
 - Build: `npm ci && npm run build` (Node 20.9+, sharp installed from the lockfile) writes `dist/`.

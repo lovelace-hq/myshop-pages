@@ -17,7 +17,7 @@ for (const f of pages) {
   // footer credit
   assert.match(h, /Made by <a href="https:\/\/lovelace\.yv3\.uk">Kat Lovelace<\/a>/, n + ': footer credit');
   // sister site cross-link
-  assert.ok(h.includes('href="https://mypod.pages.dev"'), n + ': sister link to mypod');
+  assert.ok(h.includes('href="https://mypod.yv3.uk"'), n + ': sister link to mypod');
   assert.match(h, /Sister site/, n + ': sister label');
   // no cookie banner / popup / consent / third-party scripts / analytics yet
   assert.ok(!/cookie(?!s, no popups|s and collects| ?less|s\b)/i.test(h.replace(/No cookies, no popups, no tracking\./g, '').replace(/sets no cookies/g, '')), n + ': cookie wording');
